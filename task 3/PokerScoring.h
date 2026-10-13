@@ -3,6 +3,7 @@
 
 #include "Hand.h"
 #include "PokerHandChecker.h"
+#include "HandCheckers.h"
 
 // Menghitung skor sebuah tangan.
 // Skor = skor peringkat (dari rantai PokerHandChecker) + total nilai chip kartu.

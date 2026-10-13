@@ -1,4 +1,6 @@
-# Gabungan Task 1 (RunSession) + diagram Balatro
+# balatro-replica # DP-Week1-5225600037-Justin
+
+## Task 3 - Chain of Responsibility
 
 `RunSession` dari Task 1 dipertahankan sebagai pengatur alur (setara `Game Manager` di diagram).
 Kelas-kelas diagram dibungkus adapter (`PokerAdapters.h`) agar memenuhi interface Task 1.

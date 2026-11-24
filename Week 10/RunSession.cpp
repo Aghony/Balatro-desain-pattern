@@ -1,0 +1,103 @@
+#include "RunSession.h"
+#include "JokerFactory.h"
+#include <iostream>
+
+RunSession::RunSession(
+    IInputGenerator* inputGen,
+    IScoringRule* scoring,
+    IRewardRule* reward,
+    ShopSystem* shop
+)
+    : inputGenerator(inputGen),
+      scoringRule(scoring),
+      rewardRule(reward),
+      shopSystem(shop),
+      totalMoney(0),
+      currentRound(1) {
+
+    jokerManager.addJoker(
+        JokerFactory::createJoker("Basic")
+    );
+}
+
+void RunSession::StartRun() {
+    std::cout << "=== RUN START ===\n";
+
+    while (currentRound <= MAX_ROUNDS) {
+        std::cout << "\nRound " << currentRound << "\n";
+
+        TurnInput input = PhaseGenerateInput();
+
+        int baseScore = PhaseComputeBaseScore(&input);
+
+        int reward = PhaseComputeReward(baseScore);
+
+        PhaseUpdateMoney(reward);
+
+        PhaseShop();
+
+        PhaseAdvanceRound();
+    }
+
+    std::cout << "\n=== RUN END ===\n";
+    std::cout << "Final money: " << totalMoney << "\n";
+}
+
+TurnInput RunSession::PhaseGenerateInput() {
+    TurnInput input = inputGenerator->GenerateInput();
+
+    std::cout << "  [PLAY] input generated: "
+              << input.value << "\n";
+
+    return input;
+}
+
+int RunSession::PhaseComputeBaseScore(const TurnInput* input) {
+
+    // 1. Membuat konteks scoring
+    ScoreContext context =
+        scoringRule->CreateScoreContext(*input);
+
+    // 2. Memberikan notifikasi kepada seluruh Joker
+    jokerManager.notifyScoreCalculatedWithLog(context);
+
+    // 3. Menjalankan efek setiap Joker
+    jokerManager.applyJokers(context);
+
+    // 4. Menghitung skor akhir
+    context.calculateFinalScore();
+
+    std::cout << "  [CHIPS] " << context.getChips() << "\n";
+    std::cout << "  [MULT] x" << context.getMult() << "\n";
+
+    int finalScore = context.getFinalScore();
+
+    std::cout << "  [SCORE] final score: "
+              << finalScore << "\n";
+
+    return finalScore;
+}
+
+int RunSession::PhaseComputeReward(int baseScore) {
+    int reward =
+        rewardRule->ComputeReward(baseScore, currentRound);
+
+    return reward;
+}
+
+void RunSession::PhaseUpdateMoney(int reward) {
+    totalMoney += reward;
+
+    std::cout << "  [REWARD] gain: "
+              << reward
+              << " | total money: "
+              << totalMoney << "\n";
+}
+
+void RunSession::PhaseShop() {
+    shopSystem->OpenShop();
+}
+
+void RunSession::PhaseAdvanceRound() {
+    currentRound++;
+}

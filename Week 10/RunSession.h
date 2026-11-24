@@ -1,0 +1,43 @@
+
+#ifndef RUN_SESSION_H
+#define RUN_SESSION_H
+
+#include "InputGenerator.h"
+#include "ScoringRule.h"
+#include "RewardRule.h"
+#include "ShopSystem.h"
+#include "JokerManager.h"
+
+class RunSession {
+public:
+    RunSession(
+        IInputGenerator* inputGen,
+        IScoringRule* scoring,
+        IRewardRule* reward,
+        ShopSystem* shop
+    );
+
+    void StartRun();
+
+private:
+    IInputGenerator* inputGenerator;
+    IScoringRule* scoringRule;
+    IRewardRule* rewardRule;
+    ShopSystem* shopSystem;
+
+    // Pengelola Joker
+    JokerManager jokerManager;
+
+    int totalMoney;
+    int currentRound;
+    const int MAX_ROUNDS = 3;
+
+    TurnInput PhaseGenerateInput();
+    int PhaseComputeBaseScore(const TurnInput* input);
+    int PhaseComputeReward(int baseScore);
+    void PhaseUpdateMoney(int reward);
+    void PhaseShop();
+    void PhaseAdvanceRound();
+};
+
+#endif
